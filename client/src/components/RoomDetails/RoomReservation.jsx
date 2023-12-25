@@ -1,20 +1,33 @@
 /* eslint-disable react/prop-types */
 import Calender from "./Calender";
 import Button from "../Button/Button";
-import { formatDistance } from "date-fns";
-import { useState } from "react";
+import { formatDistance, isValid, parseISO } from "date-fns";
+import { useState, useEffect } from "react";
 
 const RoomReservation = ({ room }) => {
-  // calculate price
-  const totalDays = parseInt(
-    formatDistance(new Date(room?.to), new Date(room?.from)).split(" ")[0]
-  );
-  const totalPrice = totalDays * room?.price;
+  const [totalDays, setTotalDays] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
   const [value, setValue] = useState({
     startDate: new Date(room?.from),
     endDate: new Date(room?.to),
     key: "Selection",
   });
+
+  useEffect(() => {
+    // Calculate totalDays and totalPrice when startDate or endDate changes
+    const calculateTotal = () => {
+      // Ensure that startDate and endDate are valid Date objects
+      if (isValid(value.startDate) && isValid(value.endDate)) {
+        const days = parseInt(
+          formatDistance(value.startDate, value.endDate).split(" ")[0]
+        );
+        setTotalDays(days);
+        setTotalPrice(days * room?.price);
+      }
+    };
+
+    calculateTotal();
+  }, [value.startDate, value.endDate, room?.price]);
 
   return (
     <div className="rounded-xl border-[1px] border-neutral-200 overflow-hidden bg-white">
@@ -24,7 +37,7 @@ const RoomReservation = ({ room }) => {
       </div>
       <hr />
       <div className="flex justify-center">
-        <Calender></Calender>
+        <Calender value={value}></Calender>
       </div>
       <hr />
       <div className="p-4">
