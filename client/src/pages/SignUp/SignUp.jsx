@@ -3,6 +3,7 @@ import { FcGoogle } from "react-icons/fc";
 // import axios from "axios";
 import { imageUpload } from "../../api/utils";
 import useAuth from "../../hooks/useAuth";
+import { saveUser } from "../../api/auth";
 
 const SignUp = () => {
   const { createUser, updateUserProfile, signInWithGoogle } = useAuth();
@@ -14,8 +15,28 @@ const SignUp = () => {
     const email = form.email.value;
     const password = form.password.value;
     const image = form.image.files[0];
-    const imageData = await imageUpload(image);
-    console.log(imageData);
+
+    try {
+      //1. this is upload function
+      const imageData = await imageUpload(image);
+
+      //2. User Registration
+      const result = await createUser(email, password);
+
+      //3. Save username And Profile Picture
+      await updateUserProfile(name, imageData?.data?.display_url);
+      console.log(result);
+
+      //4. save user data in database
+      const dbResponse =await saveUser(result?.user)
+      console.log(dbResponse);
+      // result.user.email
+
+      //5. get token
+    } catch (err) {
+      console.log(err);
+    }
+
     //   const formData = new FormData();
     //   formData.append("image", image);
     //   try {
@@ -30,7 +51,6 @@ const SignUp = () => {
     //     console.log(err);
     //   }
     //   console.log(image);
-    console.log({ name, email, password });
   };
   return (
     <div className="flex justify-center items-center min-h-screen">
