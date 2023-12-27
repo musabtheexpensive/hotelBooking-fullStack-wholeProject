@@ -1,12 +1,17 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 // import axios from "axios";
 import { imageUpload } from "../../api/utils";
 import useAuth from "../../hooks/useAuth";
-import { saveUser } from "../../api/auth";
+import { getToken, saveUser } from "../../api/auth";
+import { toast } from "react-hot-toast";
+import { TbFidgetSpinner } from "react-icons/tb";
 
 const SignUp = () => {
-  const { createUser, updateUserProfile, signInWithGoogle } = useAuth();
+  const { createUser, updateUserProfile, signInWithGoogle, loading } =
+    useAuth();
+  const navigate = useNavigate();
+
   // form submit handler
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -28,13 +33,17 @@ const SignUp = () => {
       console.log(result);
 
       //4. save user data in database
-      const dbResponse =await saveUser(result?.user)
+      const dbResponse = await saveUser(result?.user);
       console.log(dbResponse);
       // result.user.email
 
       //5. get token
+      await getToken(result?.user?.email);
+      navigate("/");
+      toast.success("SignUp Successful");
     } catch (err) {
-      console.log(err);
+      // console.log(err);
+      toast.error(err?.message);
     }
 
     //   const formData = new FormData();
@@ -52,6 +61,28 @@ const SignUp = () => {
     //   }
     //   console.log(image);
   };
+
+  // handle Google SignIN
+  const handleGoogleSignIn = async () => {
+    try {
+      // 1. User Registration Using Google
+      const result = await signInWithGoogle();
+
+      //2. save google user data in database
+      const dbResponse = await saveUser(result?.user);
+      console.log(dbResponse);
+      // result.user.email
+
+      //3. get token
+      await getToken(result?.user?.email);
+      navigate("/");
+      toast.success("SignUp Successful");
+    } catch (err) {
+      // console.log(err);
+      toast.error(err?.message);
+    }
+  };
+
   return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-gray-100 text-gray-900">
@@ -128,7 +159,11 @@ const SignUp = () => {
               type="submit"
               className="bg-rose-500 w-full rounded-md py-3 text-white"
             >
-              Continue
+              {loading ? (
+                <TbFidgetSpinner className="animate-spin m-auto" />
+              ) : (
+                "Continue"
+              )}
             </button>
           </div>
         </form>
@@ -139,7 +174,10 @@ const SignUp = () => {
           </p>
           <div className="flex-1 h-px sm:w-16 dark:bg-gray-700"></div>
         </div>
-        <div className="flex justify-center items-center space-x-2 border m-3 p-2 border-gray-300 border-rounded cursor-pointer">
+        <div
+          onClick={handleGoogleSignIn}
+          className="flex justify-center items-center space-x-2 border m-3 p-2 border-gray-300 border-rounded cursor-pointer"
+        >
           <FcGoogle size={32} />
 
           <p>Continue with Google</p>
