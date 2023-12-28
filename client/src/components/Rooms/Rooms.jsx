@@ -4,6 +4,7 @@ import Container from "../Shared/Container";
 import { useSearchParams } from "react-router-dom";
 import Heading from "../Shared/Heading";
 import Loader from "../Shared/Loader";
+import { getAllRooms } from "../../api/room";
 
 const Rooms = () => {
   const [rooms, setRooms] = useState([]);
@@ -12,15 +13,13 @@ const Rooms = () => {
   const category = params.get("category");
   useEffect(() => {
     setLoading(true);
-    fetch("/rooms.json")
-      .then((res) => res.json())
-      .then((data) => {
-        if (category) {
-          const filtered = data.filter((room) => room.category === category);
-          setRooms(filtered);
-        } else setRooms(data);
-        setLoading(false);
-      });
+    getAllRooms().then((data) => {
+      if (category) {
+        const filtered = data.filter((room) => room.category === category);
+        setRooms(filtered);
+      } else setRooms(data);
+      setLoading(false);
+    });
   }, [category]);
 
   if (loading) return <Loader />;

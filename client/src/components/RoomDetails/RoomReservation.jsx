@@ -1,33 +1,41 @@
 /* eslint-disable react/prop-types */
 import Calender from "./Calender";
 import Button from "../Button/Button";
-import { formatDistance, isValid, parseISO } from "date-fns";
-import { useState, useEffect } from "react";
+import { formatDistance } from "date-fns";
+import { useState } from "react";
 
 const RoomReservation = ({ room }) => {
-  const [totalDays, setTotalDays] = useState(0);
-  const [totalPrice, setTotalPrice] = useState(0);
+  // const [totalDays, setTotalDays] = useState(0);
+  // const [totalPrice, setTotalPrice] = useState(0);
   const [value, setValue] = useState({
     startDate: new Date(room?.from),
     endDate: new Date(room?.to),
     key: "Selection",
   });
 
-  useEffect(() => {
-    // Calculate totalDays and totalPrice when startDate or endDate changes
-    const calculateTotal = () => {
-      // Ensure that startDate and endDate are valid Date objects
-      if (isValid(value.startDate) && isValid(value.endDate)) {
-        const days = parseInt(
-          formatDistance(value.startDate, value.endDate).split(" ")[0]
-        );
-        setTotalDays(days);
-        setTotalPrice(days * room?.price);
-      }
-    };
+  // Total days * price
+  const totalDays = parseInt(
+    formatDistance(new Date(room?.to), new Date(room?.from)).split(" ")[0]
+  );
+  // Total Price Calculation
+  const totalPrice = totalDays * room?.price;
+  console.log(value);
 
-    calculateTotal();
-  }, [value.startDate, value.endDate, room?.price]);
+  // useEffect(() => {
+  //   // Calculate totalDays and totalPrice when startDate or endDate changes
+  //   const calculateTotal = () => {
+  //     // Ensure that startDate and endDate are valid Date objects
+  //     if (isValid(value.startDate) && isValid(value.endDate)) {
+  //       const days = parseInt(
+  //         formatDistance(value.startDate, value.endDate).split(" ")[0]
+  //       );
+  //       setTotalDays(days);
+  //       setTotalPrice(days * room?.price);
+  //     }
+  //   };
+
+  //   calculateTotal();
+  // }, [value.startDate, value.endDate, room?.price]);
 
   return (
     <div className="rounded-xl border-[1px] border-neutral-200 overflow-hidden bg-white">
