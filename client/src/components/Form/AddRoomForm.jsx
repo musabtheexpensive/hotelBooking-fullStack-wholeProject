@@ -1,14 +1,14 @@
 import React from "react";
 import { DateRange } from "react-date-range";
 import { TbFidgetSpinner } from "react-icons/tb";
-import { categories } from "../Categories/categoriesData";
+import { categories } from "../Categories/CategoriesData";
 const AddRoomForm = ({
   handleSubmit,
   dates,
   handleDates,
   loading = false,
   handleImageChange,
-  uploadButtonText,
+  // uploadButtonText,
 }) => {
   return (
     <div className="w-full min-h-[calc(100vh-40px)] flex flex-col justify-center items-center text-gray-800 rounded-xl bg-gray-50">
@@ -87,7 +87,7 @@ const AddRoomForm = ({
                       hidden
                     />
                     <div className="bg-rose-500 text-white border border-gray-300 rounded font-semibold cursor-pointer p-1 px-3 hover:bg-rose-500">
-                      {uploadButtonText}
+                      upload image
                     </div>
                   </label>
                 </div>
