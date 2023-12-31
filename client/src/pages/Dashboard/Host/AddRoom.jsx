@@ -7,8 +7,8 @@ import { imageUpload } from "../../../api/utils";
 
 const AddRoom = () => {
   const { user } = useAuth();
-  // const [loading, setLoading] = useState(false);
-  // const [uploadButtonText, setUploadButtonText] = useState("Upload Image");
+  const [loading, setLoading] = useState(false);
+  const [uploadButtonText, setUploadButtonText] = useState("Upload Image");
   const [dates, setDates] = useState({
     startDate: new Date(),
     endDate: new Date(),
@@ -59,9 +59,9 @@ const AddRoom = () => {
   };
 
   //   Handle Image Button Text
-  // const handleImageChange = (image) => {
-  //   setUploadButtonText(image.name);
-  // };
+  const handleImageChange = (image) => {
+    setUploadButtonText(image.name);
+  };
 
   return (
     <div>
@@ -73,9 +73,9 @@ const AddRoom = () => {
         handleSubmit={handleSubmit}
         handleDates={handleDates}
         dates={dates}
-        // handleImageChange={handleImageChange}
-        // loading={loading}
-        // uploadButtonText={uploadButtonText}
+        handleImageChange={handleImageChange}
+        loading={loading}
+        uploadButtonText={uploadButtonText}
       />
     </div>
   );
