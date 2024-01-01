@@ -12,6 +12,9 @@ import { BsGraphUp } from "react-icons/bs";
 import Logo from "../../Shared/Logo";
 import useAuth from "../../../hooks/useAuth";
 import userRole from "../../../hooks/userRole";
+import HostMenu from "./HostMenu";
+import GuestMenu from "./GuestMenu";
+import AdminMenu from "./AdminMenu";
 
 const Sidebar = () => {
   const { logOut } = useAuth();
@@ -61,16 +64,17 @@ const Sidebar = () => {
           {/* Nav Items */}
           <div className="flex flex-col justify-between flex-1 mt-6">
             {/* If a user is host */}
-            <ToggleBtn toggleHandler={toggleHandler} />
+            {role === "host" && <ToggleBtn toggleHandler={toggleHandler} />}
             <nav>
               <MenuItem
                 icon={BsGraphUp}
                 label="Statistics"
                 address="/dashboard"
               />
-
-              {/* Menu Items */}
-    
+              {/*Host Menu Items */}
+              {role === "host" ? toggle ? <HostMenu /> : <GuestMenu /> : ""}
+              {role === "admin" && <AdminMenu />}
+              {role === "guest" && <GuestMenu />}
             </nav>
           </div>
         </div>

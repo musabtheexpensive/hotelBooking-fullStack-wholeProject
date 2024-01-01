@@ -10,6 +10,7 @@ import { getRoom } from "../api/room";
 import DashboardLayout from "../layouts/DashboardLayout";
 import AddRoom from "../pages/Dashboard/Host/AddRoom";
 import MyListings from "../pages/Dashboard/Host/MyListings";
+import HostRoute from "./HostRoute";
 
 export const router = createBrowserRouter([
   {
@@ -36,13 +37,19 @@ export const router = createBrowserRouter([
   { path: "/signup", element: <SignUp /> },
   {
     path: "dashboard",
-    element: <PrivateRoute><DashboardLayout /></PrivateRoute>,
+    element: (
+      <PrivateRoute>
+        <DashboardLayout />
+      </PrivateRoute>
+    ),
     children: [
       {
         path: "add-room",
         element: (
           <PrivateRoute>
-            <AddRoom></AddRoom>
+            <HostRoute>
+              <AddRoom></AddRoom>
+            </HostRoute>
           </PrivateRoute>
         ),
       },
@@ -50,7 +57,9 @@ export const router = createBrowserRouter([
         path: "my-listings",
         element: (
           <PrivateRoute>
-            <MyListings></MyListings>
+            <HostRoute>
+              <MyListings></MyListings>
+            </HostRoute>
           </PrivateRoute>
         ),
       },

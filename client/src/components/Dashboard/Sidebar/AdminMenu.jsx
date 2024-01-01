@@ -1,11 +1,17 @@
-import React from 'react';
+import React from "react";
+import MenuItem from "./MenuItem";
+import { BsFillPauseCircleFill } from "react-icons/bs";
 
 const AdminMenu = () => {
-    return (
-        <>
-            
-        </>
-    );
+  return (
+    <>
+      <MenuItem
+        icon={BsFillPauseCircleFill}
+        label="Manage User"
+        address="manage-user"
+      />
+    </>
+  );
 };
 
 export default AdminMenu;
