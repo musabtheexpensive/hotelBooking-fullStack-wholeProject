@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { MdAddHomeWork } from "react-icons/md";
-import { MdHomeWork } from "react-icons/md";
+
 // Components
 
 import MenuItem from "./MenuItem";
@@ -11,10 +10,15 @@ import { FcSettings } from "react-icons/fc";
 import { AiOutlineBars } from "react-icons/ai";
 import { BsGraphUp } from "react-icons/bs";
 import Logo from "../../Shared/Logo";
+import useAuth from "../../../hooks/useAuth";
+import userRole from "../../../hooks/userRole";
 
 const Sidebar = () => {
+  const { logOut } = useAuth();
   const [toggle, setToggle] = useState(false);
   const [isActive, setActive] = useState(false);
+  const [role] = userRole();
+  console.log("The Role Is--------", role);
 
   //   For guest/host menu item toggle button
   const toggleHandler = (event) => {
@@ -66,8 +70,7 @@ const Sidebar = () => {
               />
 
               {/* Menu Items */}
-              <MenuItem icon={  MdAddHomeWork} label="Add Room" address="add-room" />
-              <MenuItem icon={ MdHomeWork} label="My Listings" address="my-listings" />
+    
             </nav>
           </div>
         </div>
@@ -80,7 +83,10 @@ const Sidebar = () => {
             label="Profile"
             address="/dashboard/profile"
           />
-          <button className="flex w-full items-center px-4 py-2 mt-5 text-gray-600 hover:bg-gray-300   hover:text-gray-700 transition-colors duration-300 transform">
+          <button
+            onClick={logOut}
+            className="flex w-full items-center px-4 py-2 mt-5 text-gray-600 hover:bg-gray-300   hover:text-gray-700 transition-colors duration-300 transform"
+          >
             <GrLogout className="w-5 h-5" />
 
             <span className="mx-4 font-medium">Logout</span>
