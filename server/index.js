@@ -46,6 +46,7 @@ async function run() {
   try {
     const usersCollection = client.db("stayVistaDb").collection("users");
     const roomsCollection = client.db("stayVistaDb").collection("rooms");
+    const bookingsCollection = client.db("stayVistaDb").collection("bookings");
 
     // auth related api
     app.post("/jwt", async (req, res) => {
@@ -148,6 +149,17 @@ async function run() {
         clientSecret: client_secret,
       });
     });
+
+    // save booking info in booking collection
+    app.post("/bookings", verifyToken, async (req, res) => {
+      const booking = req.body;
+      const result = await bookingsCollection.insertOne(booking);
+      // send email functionality start here
+      res.send(result);
+    });
+
+// update room booking status
+// app.patch('/')
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
