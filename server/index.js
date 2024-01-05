@@ -168,7 +168,7 @@ async function run() {
           booked: status,
         },
       };
-      const result = await roomsCollection.insertOne(updateDoc, query);
+      const result = await roomsCollection.updateOne(query, updateDoc);
       res.send(result);
     });
 
