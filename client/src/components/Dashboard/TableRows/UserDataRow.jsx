@@ -4,7 +4,7 @@ import UpdateUserModal from "../../Modal/UpdateUserModel";
 const UserDataRow = ({ user }) => {
   const [isOpen, setIsOpen] = useState(false);
   const modalHandler = async (selected) => {
-    console.log(modalHandler);
+    console.log(selected);
     // update user role from database
   };
   return (
