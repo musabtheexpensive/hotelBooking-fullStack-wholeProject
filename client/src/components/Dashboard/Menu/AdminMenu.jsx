@@ -1,6 +1,6 @@
 import React from "react";
-import MenuItem from "./MenuItem";
 import { FaAd } from "react-icons/fa";
+import MenuItem from "../Sidebar/MenuItem";
 
 const AdminMenu = () => {
   return (
