@@ -47,3 +47,13 @@ export const updateRole = async ({ email, role }) => {
   const { data } = await axiosSecure.put(`/users/update/${email}`, currentUser);
   return data;
 };
+
+// Become A Host
+export const becomeHost = async (email) => {
+  const currentUser = {
+    email,
+    status: "Requested",
+  };
+  const { data } = await axiosSecure.put(`/users/${email}`, currentUser);
+  return data;
+};

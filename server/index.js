@@ -49,6 +49,9 @@ async function run() {
     const roomsCollection = client.db("stayVistaDb").collection("rooms");
     const bookingsCollection = client.db("stayVistaDb").collection("bookings");
 
+    // role verification middlewares
+    
+
     // auth related api
     app.post("/jwt", async (req, res) => {
       const user = req.body;
@@ -89,7 +92,21 @@ async function run() {
       const options = { upsert: true };
       const isExist = await usersCollection.findOne(query);
       console.log("User found?----->", isExist);
-      if (isExist) return res.send(isExist);
+      if (isExist) {
+        if (user?.status === "Requested") {
+          const result = await usersCollection.updateOne(
+            query,
+            {
+              $set: user,
+            },
+            options
+          );
+          return res.send(result);
+        } else {
+          return res.send(isExist);
+        }
+      }
+
       const result = await usersCollection.updateOne(
         query,
         {
@@ -212,6 +229,38 @@ async function run() {
       const result = await usersCollection.updateOne(query, updateDoc, options);
       res.send(result);
     });
+
+    // when a guest request to be a host? the backend code is there
+    // app.put("/users/:email", async (req, res) => {
+    //   const email = req.params.email;
+    //   const user = req.body;
+    //   const query = { email: email };
+    //   const options = { upsert: true };
+    //   const isExist = await usersCollection.findOne(query);
+    //   if (isExist) {
+    //     if (user?.status === "Requested") {
+    //       const result = await usersCollection.updateOne(
+    //         query,
+    //         {
+    //           $set: user,
+    //         },
+    //         options
+    //       );
+    //       return res.send(result);
+    //     } else {
+    //       return res.send(isExist);
+    //     }
+    //   }
+
+    //   const result = await usersCollection.updateOne(
+    //     query,
+    //     {
+    //       $set: { ...user, timestamp: Date.now() },
+    //     },
+    //     options
+    //   );
+    //   res.send(result);
+    // });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
