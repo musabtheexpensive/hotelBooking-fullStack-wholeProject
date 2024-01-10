@@ -75,7 +75,7 @@ const RoomReservation = ({ room }) => {
       <hr />
       <div className="p-4">
         <Button
-          disabled={room.host.email === user.email || room.booked}
+          // disabled={room.host.email === user.email || room.booked}
           onClick={() => setIsOpen(true)}
           label={"Reserve"}
         ></Button>

@@ -58,7 +58,7 @@ const AddRoom = () => {
     try {
       const data = await addRoom(roomData);
       console.log(data);
-      setUploadButtonText("Uploaded Image ....`");
+      setUploadButtonText("Uploaded Image ....");
       toast.success("Successfully Room Added");
       navigate("/dashboard/my-listings");
     } catch (err) {

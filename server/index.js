@@ -16,11 +16,11 @@ const corsOptions = {
   credentials: true,
   optionSuccessStatus: 200,
 };
+
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
-
 const verifyToken = async (req, res, next) => {
   const token = req.cookies?.token;
   console.log(token);
@@ -38,7 +38,7 @@ const verifyToken = async (req, res, next) => {
 };
 
 // send email
-const sendEmail = () => {
+const sendEmail = (emailAddress,emailData) => {
   // create a transporter
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -55,7 +55,22 @@ const sendEmail = () => {
     if (error) {
       console.log(error);
     } else {
-      console.log("server is ready to take our emails",success);
+      console.log("server is ready to take our emails", success);
+    }
+  });
+
+  const mailBody = {
+    from: process.env.MAIL,
+    to: emailAddress,
+    subject: emailData?.subject,
+    html: `<p>${emailData?.message}</p>`,
+  };
+
+  transporter.sendMail(mailBody, (error, info) => {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Email sent: " + info.response);
     }
   });
 };
@@ -69,7 +84,7 @@ const client = new MongoClient(process.env.DB_URI, {
 });
 
 async function run() {
-  sendEmail()
+  // sendEmail()
   try {
     const usersCollection = client.db("stayVistaDb").collection("users");
     const roomsCollection = client.db("stayVistaDb").collection("rooms");
@@ -214,14 +229,26 @@ async function run() {
       });
     });
 
-    // save booking info in booking collection
-    app.post("/bookings", verifyToken, async (req, res) => {
-      const booking = req.body;
-      const result = await bookingsCollection.insertOne(booking);
-      // send email functionality start here
-      res.send(result);
-    });
+   // Save booking info in booking collection
+   app.post('/bookings', verifyToken, async (req, res) => {
+    const booking = req.body
+    const result = await bookingsCollection.insertOne(booking)
+    // Send Email.....
+    if (result.insertedId) {
+      // To guest
+      sendEmail(booking.guest.email, {
+        subject: 'Booking Successful!',
+        message: `Room Ready, chole ashen vai, apnar Transaction Id: ${booking.transactionId}`,
+      })
 
+      // To Host
+      sendEmail(booking.host, {
+        subject: 'Your room got booked!',
+        message: `Room theke vago. ${booking.guest.name} ashtese.....`,
+      })
+    }
+    res.send(result)
+  })
     // update room booking status
     app.patch("/rooms/status/:id", async (req, res) => {
       const id = req.params.id;
@@ -275,6 +302,34 @@ async function run() {
       const result = await usersCollection.updateOne(query, updateDoc, options);
       res.send(result);
     });
+
+    // Admin Stat Data
+    app.get('/admin-stat', verifyToken, verifyAdmin, async (req, res) => {
+      const bookingsDetails = await bookingsCollection
+        .find({}, { projection: { date: 1, price: 1 } })
+        .toArray()
+      const userCount = await usersCollection.countDocuments()
+      const roomCount = await roomsCollection.countDocuments()
+      const totalSale = bookingsDetails.reduce(
+        (sum, data) => sum + data.price,
+        0
+      )
+
+      const chartData = bookingsDetails.map(data => {
+        const day = new Date(data.date).getDate()
+        const month = new Date(data.date).getMonth() + 1
+        return [day + '/' + month, data.price]
+      })
+      chartData.unshift(['Day', 'Sale'])
+      res.send({
+        totalSale,
+        bookingCount: bookingsDetails.length,
+        userCount,
+        roomCount,
+        chartData,
+      })
+    })
+
 
     // when a guest request to be a host? the backend code is there
     // app.put("/users/:email", async (req, res) => {
