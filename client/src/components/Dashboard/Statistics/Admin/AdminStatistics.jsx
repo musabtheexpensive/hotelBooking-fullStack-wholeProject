@@ -2,7 +2,7 @@ import { Calendar } from 'react-date-range'
 import { FaUserAlt, FaDollarSign } from 'react-icons/fa'
 import { BsFillCartPlusFill, BsFillHouseDoorFill } from 'react-icons/bs'
 import { useEffect, useState } from 'react'
-import { getAdminStat } from '../../../api/utils'
+import { getAdminStat } from '../../../../api/utils'
 import SalesLineChart from './SalesLineChart'
 
 const AdminStatistics = () => {

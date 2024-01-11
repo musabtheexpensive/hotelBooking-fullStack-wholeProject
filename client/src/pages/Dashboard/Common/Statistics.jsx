@@ -1,4 +1,4 @@
-import AdminStatistics from '../../../components/Dashboard/Statistics/AdminStatistics'
+import AdminStatistics from '../../../components/Dashboard/Statistics/Admin/AdminStatistics'
 import { Helmet } from 'react-helmet-async'
 import userRole from '../../../hooks/userRole'
 // import GuestStatistics from '../../../components/Dashboard/Statistics/Guest/GuestStatistics'
