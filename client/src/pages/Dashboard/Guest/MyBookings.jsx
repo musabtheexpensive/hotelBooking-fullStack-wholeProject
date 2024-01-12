@@ -73,7 +73,7 @@ const MyBookings = () => {
                   {/* Table Row Data */}
                   {bookings &&
                     bookings.map((booking) => (
-                      <TableRow key={booking._id} booking={booking} />
+                      <TableRow key={booking._id} booking={booking} refetch={refetch} />
                     ))}
                 </tbody>
               </table>

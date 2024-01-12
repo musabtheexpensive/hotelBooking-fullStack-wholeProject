@@ -38,7 +38,7 @@ const verifyToken = async (req, res, next) => {
 };
 
 // send email
-const sendEmail = (emailAddress,emailData) => {
+const sendEmail = (emailAddress, emailData) => {
   // create a transporter
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -229,26 +229,26 @@ async function run() {
       });
     });
 
-   // Save booking info in booking collection
-   app.post('/bookings', verifyToken, async (req, res) => {
-    const booking = req.body
-    const result = await bookingsCollection.insertOne(booking)
-    // Send Email.....
-    if (result.insertedId) {
-      // To guest
-      sendEmail(booking.guest.email, {
-        subject: 'Booking Successful!',
-        message: `Room Ready, chole ashen vai, apnar Transaction Id: ${booking.transactionId}`,
-      })
+    // Save booking info in booking collection
+    app.post("/bookings", verifyToken, async (req, res) => {
+      const booking = req.body;
+      const result = await bookingsCollection.insertOne(booking);
+      // Send Email.....
+      if (result.insertedId) {
+        // To guest
+        sendEmail(booking.guest.email, {
+          subject: "Booking Successful!",
+          message: `Room Ready, chole ashen vai, apnar Transaction Id: ${booking.transactionId}`,
+        });
 
-      // To Host
-      sendEmail(booking.host, {
-        subject: 'Your room got booked!',
-        message: `Room theke vago. ${booking.guest.name} ashtese.....`,
-      })
-    }
-    res.send(result)
-  })
+        // To Host
+        sendEmail(booking.host, {
+          subject: "Your room got booked!",
+          message: `Room theke vago. ${booking.guest.name} ashtese.....`,
+        });
+      }
+      res.send(result);
+    });
     // update room booking status
     app.patch("/rooms/status/:id", async (req, res) => {
       const id = req.params.id;
@@ -281,6 +281,14 @@ async function run() {
       res.send(result);
     });
 
+    // delete a booking
+    app.delete("/bookings/:id", verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await bookingsCollection.deleteOne(query);
+      res.send(result);
+    });
+
     // get all users
     app.get("/users", verifyToken, verifyAdmin, async (req, res) => {
       const result = await usersCollection.find().toArray();
@@ -304,32 +312,31 @@ async function run() {
     });
 
     // Admin Stat Data
-    app.get('/admin-stat', verifyToken, verifyAdmin, async (req, res) => {
+    app.get("/admin-stat", verifyToken, verifyAdmin, async (req, res) => {
       const bookingsDetails = await bookingsCollection
         .find({}, { projection: { date: 1, price: 1 } })
-        .toArray()
-      const userCount = await usersCollection.countDocuments()
-      const roomCount = await roomsCollection.countDocuments()
+        .toArray();
+      const userCount = await usersCollection.countDocuments();
+      const roomCount = await roomsCollection.countDocuments();
       const totalSale = bookingsDetails.reduce(
         (sum, data) => sum + data.price,
         0
-      )
+      );
 
-      const chartData = bookingsDetails.map(data => {
-        const day = new Date(data.date).getDate()
-        const month = new Date(data.date).getMonth() + 1
-        return [day + '/' + month, data.price]
-      })
-      chartData.unshift(['Day', 'Sale'])
+      const chartData = bookingsDetails.map((data) => {
+        const day = new Date(data.date).getDate();
+        const month = new Date(data.date).getMonth() + 1;
+        return [day + "/" + month, data.price];
+      });
+      chartData.unshift(["Day", "Sale"]);
       res.send({
         totalSale,
         bookingCount: bookingsDetails.length,
         userCount,
         roomCount,
         chartData,
-      })
-    })
-
+      });
+    });
 
     // when a guest request to be a host? the backend code is there
     // app.put("/users/:email", async (req, res) => {
