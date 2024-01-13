@@ -28,6 +28,13 @@ const RoomReservation = ({ room }) => {
   );
   // Total Price Calculation
   const totalPrice = totalDays * room?.price;
+  const handleDateChange = (range) => {
+    setValue({
+      startDate: new Date(room?.from),
+      endDate: new Date(room?.to),
+      key: "Selection",
+    });
+  };
   console.log(value);
 
   // useEffect(() => {
@@ -70,7 +77,7 @@ const RoomReservation = ({ room }) => {
       </div>
       <hr />
       <div className="flex justify-center">
-        <Calender value={value}></Calender>
+        <Calender handleDateChange={handleDateChange} value={value}></Calender>
       </div>
       <hr />
       <div className="p-4">
