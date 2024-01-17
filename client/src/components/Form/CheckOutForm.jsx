@@ -81,6 +81,7 @@ const CheckoutForm = ({ bookingInfo, closeModal }) => {
 
     if (paymentIntent.status === "succeeded") {
       const paymentInfo = {
+        email:user.email,
         ...bookingInfo,
         transactionId: paymentIntent.id,
         date: new Date(),

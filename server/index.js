@@ -8,7 +8,15 @@ const jwt = require("jsonwebtoken");
 const morgan = require("morgan");
 const port = process.env.PORT || 8000;
 const stripe = require("stripe")(process.env.PAYMENT_SECRET_KEY);
-const nodemailer = require("nodemailer");
+// const nodemailer = require("nodemailer");
+
+const formData = require("form-data");
+const Mailgun = require("mailgun.js");
+const mailgun = new Mailgun(formData);
+const mg = mailgun.client({
+  username: "api",
+  key: process.env.MAIL_GUN_API_KEY,
+});
 
 // middleware
 const corsOptions = {
@@ -36,44 +44,45 @@ const verifyToken = async (req, res, next) => {
     next();
   });
 };
+// console.log(process.env.USER);
+// console.log(process.env.PASS);
+// // send email
+// const sendEmail = (emailAddress, emailData) => {
+//   // create a transporter
+//   const transporter = nodemailer.createTransport({
+//     service: "gmail",
+//     host: "smtp.gmail.com",
+//     port: 587,
+//     secure: false,
+//     auth: {
+//       user: process.env.USER,
+//       pass: process.env.PASS,
+//     },
+//   });
+//   // verify connection
+//   transporter.verify((error, success) => {
+//     if (error) {
+//       console.log(error);
+//     } else {
+//       console.log("server is ready to take our emails", success);
+//     }
+//   });
 
-// send email
-const sendEmail = (emailAddress, emailData) => {
-  // create a transporter
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.USER,
-      pass: process.env.PASS,
-    },
-  });
-  // verify connection
-  transporter.verify((error, success) => {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log("server is ready to take our emails", success);
-    }
-  });
+//   const mailBody = {
+//     from: process.env.USER,
+//     to: emailAddress,
+//     subject: emailData?.subject,
+//     html: `<p>${emailData?.message}</p>`,
+//   };
 
-  const mailBody = {
-    from: process.env.MAIL,
-    to: emailAddress,
-    subject: emailData?.subject,
-    html: `<p>${emailData?.message}</p>`,
-  };
-
-  transporter.sendMail(mailBody, (error, info) => {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log("Email sent: " + info.response);
-    }
-  });
-};
+//   transporter.sendMail(mailBody, (error, info) => {
+//     if (error) {
+//       console.log(error);
+//     } else {
+//       console.log("Email sent: " + info.response);
+//     }
+//   });
+// };
 
 const client = new MongoClient(process.env.DB_URI, {
   serverApi: {
@@ -233,22 +242,42 @@ async function run() {
     app.post("/bookings", verifyToken, async (req, res) => {
       const booking = req.body;
       const result = await bookingsCollection.insertOne(booking);
-      // Send Email.....
-      if (result.insertedId) {
-        // To guest
-        sendEmail(booking.guest.email, {
-          subject: "Booking Successful!",
-          message: `Room Ready, chole ashen vai, apnar Transaction Id: ${booking.transactionId}`,
-        });
+      mg.messages
+        .create('sandbox1b2185e4305d402d9887c7998c89ba95.mailgun.org', {
+          from: "Mailgun Sandbox <postmaster@sandbox1b2185e4305d402d9887c7998c89ba95.mailgun.org>",
+          to: ["musabalmahi53@gmail.com"],
+          subject: "stayvista hotel room",
+          text: "Testing some Mailgun awesomness!",
+          html: `
+          <div>
+            <h2>Thank you for your booking</h2>
+            <h4>Your Transaction Id: <strong>${booking.transactionId}</strong></h4>
+            <p>We would like to get your feedback about the room</p>
+          </div>
+        `,
+        })
 
-        // To Host
-        sendEmail(booking.host, {
-          subject: "Your room got booked!",
-          message: `Room theke vago. ${booking.guest.name} ashtese.....`,
-        });
-      }
+        .then((msg) => console.log(msg)) // logs response data
+        .catch((err) => console.log(err));
+// send user email about payment confirmation using sanGrid
+
+      // Send Email using nodemailer but it is not working properly.....
+      // if (result.insertedId) {
+      //   // To guest
+      //   sendEmail(booking.guest.email, {
+      //     subject: "Booking Successful!",
+      //     message: `Room Ready, chole ashen vai, apnar Transaction Id: ${booking.transactionId}`,
+      //   });
+
+      //   // To Host
+      //   sendEmail(booking.host, {
+      //     subject: "Your room got booked!",
+      //     message: `Room theke vago. ${booking.guest.name} ashtese.....`,
+      //   });
+      // }
       res.send(result);
     });
+
     // update room booking status
     app.patch("/rooms/status/:id", async (req, res) => {
       const id = req.params.id;
