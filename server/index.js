@@ -243,7 +243,7 @@ async function run() {
       const booking = req.body;
       const result = await bookingsCollection.insertOne(booking);
       mg.messages
-        .create('sandbox1b2185e4305d402d9887c7998c89ba95.mailgun.org', {
+        .create("sandbox1b2185e4305d402d9887c7998c89ba95.mailgun.org", {
           from: "Mailgun Sandbox <postmaster@sandbox1b2185e4305d402d9887c7998c89ba95.mailgun.org>",
           to: ["musabalmahi53@gmail.com"],
           subject: "stayvista hotel room",
@@ -259,7 +259,7 @@ async function run() {
 
         .then((msg) => console.log(msg)) // logs response data
         .catch((err) => console.log(err));
-// send user email about payment confirmation using sanGrid
+      // send user email about payment confirmation using sanGrid
 
       // Send Email using nodemailer but it is not working properly.....
       // if (result.insertedId) {
@@ -364,6 +364,93 @@ async function run() {
         userCount,
         roomCount,
         chartData,
+      });
+    });
+
+    // Host Statistics
+    app.get("/host-stat", verifyToken, verifyHost, async (req, res) => {
+      const { email } = req.user;
+
+      const bookingsDetails = await bookingsCollection
+        .find(
+          { host: email },
+          {
+            projection: {
+              date: 1,
+              price: 1,
+            },
+          }
+        )
+        .toArray();
+      const roomCount = await roomsCollection.countDocuments({
+        "host.email": email,
+      });
+      const totalSale = bookingsDetails.reduce(
+        (acc, data) => acc + data.price,
+        0
+      );
+      const chartData = bookingsDetails.map((data) => {
+        const day = new Date(data.date).getDate();
+        const month = new Date(data.date).getMonth() + 1;
+        return [day + "/" + month, data.price];
+      });
+      chartData.splice(0, 0, ["Day", "Sale"]);
+      const { timestamp } = await usersCollection.findOne(
+        { email },
+        {
+          projection: {
+            timestamp: 1,
+          },
+        }
+      );
+      res.send({
+        totalSale,
+        bookingCount: bookingsDetails.length,
+        roomCount,
+        chartData,
+        hostSince: timestamp,
+      });
+    });
+
+    // Guest Statistics
+    app.get("/guest-stat", verifyToken, async (req, res) => {
+      const { email } = req.user;
+
+      const bookingsDetails = await bookingsCollection
+        .find(
+          { "guest.email": email },
+          {
+            projection: {
+              date: 1,
+              price: 1,
+            },
+          }
+        )
+        .toArray();
+
+      const chartData = bookingsDetails.map((data) => {
+        const day = new Date(data.date).getDate();
+        const month = new Date(data.date).getMonth() + 1;
+        return [day + "/" + month, data.price];
+      });
+      chartData.splice(0, 0, ["Day", "Reservation"]);
+      const { timestamp } = await usersCollection.findOne(
+        { email },
+        {
+          projection: {
+            timestamp: 1,
+          },
+        }
+      );
+      const totalSpent = bookingsDetails.reduce(
+        (acc, data) => acc + data.price,
+        0
+      );
+      res.send({
+        bookingCount: bookingsDetails.length,
+        chartData,
+        guestSince: timestamp,
+        totalSpent,
       });
     });
 
