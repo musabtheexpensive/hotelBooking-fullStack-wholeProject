@@ -10,6 +10,13 @@ const port = process.env.PORT || 8000;
 const stripe = require("stripe")(process.env.PAYMENT_SECRET_KEY);
 // const nodemailer = require("nodemailer");
 
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://hotelmanagement-full-project.web.app');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE,PATCH');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
+
 const formData = require("form-data");
 const Mailgun = require("mailgun.js");
 const mailgun = new Mailgun(formData);
